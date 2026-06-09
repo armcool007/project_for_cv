@@ -99,4 +99,4 @@ Before running this pipeline, ensure the following are installed and configured:
 4)Monitor each stage in the Jenkins Blue Ocean UI.
 
 5)Access the running application at:
-    http://<jenkins-server-ip>:8081
+    http://<jenkins-server-ip>:8081/maven-web-app/
