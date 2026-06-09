@@ -1,0 +1,56 @@
+- name: Installing Tomcat
+  hosts: rhel
+  become: yes
+  tasks:
+    - name: download tomcat from url
+      get_url:
+        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.55/bin/apache-tomcat-10.1.55.tar.gz
+        dest: /opt
+
+    - name: untar tomcat
+      unarchive:
+        src: /opt/apache-tomcat-10.1.55.tar.gz
+        dest: /opt/
+#        remote_src: yes
+
+    - name: placing the tomcat-user.xml file
+      copy:
+        src: /root/tomcat-users.xml
+        dest: /opt/apache-tomcat-10.1.55/conf
+        force: yes
+ #     command: mv /root/tomcat-users.xml /opt/apache-tomcat-10.1.55/conf/tomcat-users.xml
+
+    - name: changing the context.xml
+      copy:
+        src: /root/tomcat-users.xml
+        dest: /opt/apache-tomcat-10.1.55/conf
+        force: yes
+
+#      command: mv /root/context.xml /opt/apache-tomcat-10.1.55/webapps/manager/META-INF/context.xml
+
+    - name: start the tomcat
+      copy:
+        dest: /etc/systemd/system/tomcat.service
+        mode: 755
+        content: |
+          [Unit]
+          Description=Apache Tomcat Web Application Container
+          After=network.target
+
+          [Service]
+          Type=forking
+          ExecStart=/opt/apache-tomcat-10.1.55/bin/startup.sh
+          ExecStop=/opt/apache-tomcat-10.1.55/bin/shutdown.sh
+          User=root
+          Group=root
+
+          [Install]
+          WantedBy=multi-user.target
+#      command: bash /opt/apache-tomcat-10.1.55/bin/startup.sh
+
+    - name: start and enable tomcat service
+      systemd:
+        name: tomcat
+        state: started
+        enabled: yes
+        daemon_reload: yes
