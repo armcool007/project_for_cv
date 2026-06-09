@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployement-starbucks
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: star
+  template:
+    metadata:
+      labels:
+        name: star
+    spec:
+      containers:
+        - name: starone
+          image: armcool004/starbucks:may
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: star-service
+spec:
+  type: NodePort
+  selector:
+    name: star
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 32767
