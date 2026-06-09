@@ -92,11 +92,11 @@ Before running this pipeline, ensure the following are installed and configured:
    git clone https://github.com/armcool007/project_for_cv.git
    cd project_for_cv
    
-2)Place the Jenkinsfile in your Jenkins job configuration (Pipeline → Pipeline script from SCM).
+ 2)Place the Jenkinsfile in your Jenkins job configuration (Pipeline → Pipeline script from SCM).
 
-3)Trigger the build from Jenkins dashboard.
+ 3)Trigger the build from Jenkins dashboard.
 
-4)Monitor each stage in the Jenkins Blue Ocean UI.
+ 4)Monitor each stage in the Jenkins Blue Ocean UI.
 
-5)Access the running application at:
+ 5)Access the running application at:
     http://<jenkins-server-ip>:8081
