@@ -249,47 +249,6 @@ Scan reports aren't just saved — they're emailed to stakeholders. This creates
 By triggering a separate Kubernetes job, this pipeline demonstrates microservices architecture and separation of concerns — critical for enterprise environments.
 5. Workspace Cleanup
 Starting every build with a clean workspace eliminates a whole class of "mysterious" build failures.
-🧠 Challenges I Faced & How I Solved Them
-Challenge 1: SonarQube Quality Gate Timeout
-Problem: waitForQualityGate was timing out before SonarQube finished analysis.
-Solution: Added proper webhook configuration in SonarQube pointing to Jenkins. Also increased timeout in Jenkins configuration.
-Lesson: Tools need to talk to each other. Configuration is as important as code.
-Challenge 2: Docker Push Authentication
-Problem: Docker push was failing with "unauthorized" error.
-Solution: Stored Docker Hub credentials in Jenkins Credentials Manager and referenced them using credentialsId.
-Lesson: Never hardcode credentials. Use secret management tools.
-Challenge 3: S3 Upload Permissions
-Problem: S3 upload was failing with "Access Denied".
-Solution: Created IAM role with S3 write permissions and attached it to the Jenkins EC2 instance. Used profileName in the pipeline.
-Lesson: AWS security is complex but essential. IAM roles are more secure than access keys.
-Challenge 4: Email Attachments Not Sending
-Problem: Email was sending but attachments were missing.
-Solution: Used correct glob pattern (**/imageSCAN.txt) and ensured files existed before email step.
-Lesson: Test each stage independently before combining them.
-📚 What I Learned From This Project
-Technical Skills
-
-    ✅ Writing advanced Jenkins pipelines with error handling
-    ✅ Implementing quality gates and security scanning
-    ✅ Managing Docker images and registries
-    ✅ Integrating Kubernetes with CI/CD
-    ✅ Using IAM roles for AWS access
-    ✅ Configuring email notifications with attachments
-
-DevOps Philosophy
-
-    ✅ Automation is everything — if you do it twice, script it
-    ✅ Shift-left security — catch issues early, not in production
-    ✅ Observability matters — stakeholders need visibility
-    ✅ Separation of concerns — CI and CD should be independent
-    ✅ Clean builds — reproducibility is non-negotiable
-
-Problem-Solving
-
-    ✅ Reading logs and debugging pipeline failures
-    ✅ Understanding tool integrations and webhooks
-    ✅ Balancing security with deployment speed
-    ✅ Documentation and knowledge sharing
 
 🚀 How to Run This Pipeline
 Prerequisites
