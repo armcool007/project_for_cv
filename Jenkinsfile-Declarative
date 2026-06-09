@@ -1,0 +1,98 @@
+pipeline {
+    agent any
+    environment {
+        SCANNER_HOME= tool 'sonarqube'
+    }
+
+    stages {
+        stage('clean') {
+            steps {
+                cleanWs()
+            }
+        }
+        stage('git clone') {
+            steps {
+                git branch: 'starbucks', url: 'https://github.com/armcool007/project_for_cv.git'
+            }
+        }
+        stage('sonarqube test') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=starbucks -Dsonar.projectKey=starbucks'
+                }
+            }
+        }
+        //stage('qualitygates'){
+        //    steps{
+        //        waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube-id'
+        //    }
+        //}
+        stage('trivy fs scan') {
+            steps {
+                sh 'trivy fs . > starFS.txt'
+            }
+        }
+        stage('docker build') {
+            steps {
+                sh 'docker build -t armcool004/starbucks:may .'
+            }
+        }
+        stage('docker push') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                    sh 'docker push armcool004/starbucks:may'
+                }
+            }
+        }
+        stage('trivy image scan') {
+            steps {
+                sh 'trivy image armcool004/starbucks:may > imageSCAN.txt'
+            }
+        }
+        //stage('hitting kuber'){
+        //    steps{
+        //        build 'starbuks-kubernets'
+        //    }
+        //}
+        stage('save data in s3'){
+            steps{
+                s3Upload(
+                    profileName: 'jenkins_s3_role',
+                    entries: [[
+                        sourceFile: '**/*',
+                        bucket: 'outoftheworld9',
+                        selectedRegion: 'ap-south-1'
+                    ]],
+                        pluginFailureResultConstraint: 'FAILURE',
+                        consoleLogLevel: 'INFO',
+                        dontWaitForConcurrentBuildCompletion: false,
+                        dontSetBuildResultOnFailure: false,
+                        userMetadata: []
+                )
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                def buildStatus = currentBuild.currentResult
+                def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'Github User'
+                emailext (
+                    subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                    <p>This is a Jenkins STARBUCKS CICD pipeline status.</p>
+                    <p>Project: ${env.JOB_NAME}</p>
+                    <p>Build Number: ${env.BUILD_NUMBER}</p>
+                    <p>Build Status: ${buildStatus}</p>
+                    <p>Started by: ${buildUser}</p>
+                    <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                    to: 'intraday001@gmail.com',
+                    from: 'intraday001@gmail.com',
+                    replyTo: 'intraday001@gmail.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: '**/imageSCAN.txt,**/starFS.txt'
+                )
+            }
+        }
+    }
+}
