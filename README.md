@@ -87,7 +87,6 @@ Before running this pipeline, ensure the following are installed and configured:
 ---
 
 ## 🚀 How to Use
-
 1) **Clone this repository:**
    ```bash
    git clone https://github.com/armcool007/project_for_cv.git
